@@ -31,7 +31,7 @@
 #pop .x:hover{background:#ff5a5f}#pop .x:focus-visible{outline:3px solid #fff;outline-offset:2px}
 .prog{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;list-style:none;padding:16px 18px 4px}
 .prog li{padding:8px 10px;border-radius:12px;background:rgba(255,255,255,.1);font:500 13px/1.25 var(--font-body);text-align:center;opacity:.65}
-.prog li b{display:block;font:700 16px var(--font-heading)}.prog li.on{opacity:1;background:#ffd23f;color:#0a3b52}
+.prog li{cursor:pointer}.prog li.on{cursor:default}.prog li b{display:block;font:700 16px var(--font-heading)}.prog li.on{opacity:1;background:#ffd23f;color:#0a3b52}
 .txt{padding:8px 18px 22px}.txt p{margin-top:14px;padding:12px 14px;background:rgba(255,255,255,.08);border-radius:14px;font-size:16px;font-weight:500}
 @media(max-width:520px){.prog{grid-template-columns:1fr}.txt p{font-size:15px}}
 @media(prefers-reduced-motion:reduce){.rv{opacity:1!important;transform:none!important;transition:none!important}.wait{animation:none}#pop section{animation:none}.glow.go{animation:none;opacity:.8}}
@@ -62,7 +62,7 @@ for(let i=0;i<15;i++){const [l,t]=pc(PX(i),PY);const p=document.createElement('d
 const frog=mk('ab',0,0,FW,img(SP.fr,'Chú ếch trên lá sen'));frog.style.visibility='hidden';frog.style.zIndex=4;frog.style.transformOrigin='50% 85%';
 const n1=mk('num',463,4826,0,'');const n2=mk('num',503,4857,0,'');
 let N=0,fp=null,raf=0;
-const fset=(x,y,sy=1,sx=1)=>{frog.style.transform=`translate(${x*K()}px,${y*K()}px) translate(-50%,-55%) scale(${sx},${sy})`};
+const fset=(x,y,sy=1,sx=1)=>{frog.style.transform=`translate(${x*K()}px,${y*stage.clientHeight/H0}px) translate(-50%,-55%) scale(${sx},${sy})`};
 function pick(n){if(n==N)return;N=n;pads.forEach((g,i)=>{g.style.transitionDelay=i<n?(i*30)+'ms':'0ms';g.classList.toggle('on',i<n)});
  n1.textContent=n;n2.textContent=n;pbs[n-1].setAttribute('aria-pressed','true');
  const tx=PX(n-1),ty=PY;frog.style.visibility='visible';cancelAnimationFrame(raf);
@@ -111,6 +111,7 @@ let last=null;
 function openP(n,btn){last=btn;const r=D.rules[n];document.getElementById('ptitle').textContent=r.t;
  pop.querySelector('.prog').innerHTML=stages.map((s,i)=>`<li class="${i+1==n?'on':''}"${i+1==n?' aria-current="step"':''}><b>${s[0]}</b>${s[1]}</li>`).join('');
  pop.querySelector('.txt').innerHTML=r.p.map(t=>`<p>${t}</p>`).join('');dlg.scrollTop=0;pop.classList.add('open');document.body.style.overflow='hidden';pop.querySelector('.x').focus()}
+pop.querySelector('.prog').addEventListener('click',e=>{const li=e.target.closest('li');if(!li)return;const n=[...li.parentNode.children].indexOf(li)+1;if(n>0&&D.rules[n]&&!li.classList.contains('on'))openP(n,last)});
 function closeP(){pop.classList.remove('open');document.body.style.overflow='';last&&last.focus()}
 pop.querySelector('.x').onclick=closeP;pop.addEventListener('pointerdown',e=>{if(e.target===pop)closeP()});
 addEventListener('keydown',e=>{if(!pop.classList.contains('open'))return;if(e.key=='Escape')closeP();if(e.key=='Tab'){const f=[...dlg.querySelectorAll('button,[href],[tabindex]:not([tabindex="-1"])')],a=f[0],z=f[f.length-1];if(!f.length)return;if(e.shiftKey&&document.activeElement==a){e.preventDefault();z.focus()}else if(!e.shiftKey&&document.activeElement==z){e.preventDefault();a.focus()}}});
