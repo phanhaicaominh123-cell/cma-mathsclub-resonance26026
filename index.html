@@ -116,4 +116,5 @@ function closeP(){pop.classList.remove('open');document.body.style.overflow='';l
 pop.querySelector('.x').onclick=closeP;pop.addEventListener('pointerdown',e=>{if(e.target===pop)closeP()});
 addEventListener('keydown',e=>{if(!pop.classList.contains('open'))return;if(e.key=='Escape')closeP();if(e.key=='Tab'){const f=[...dlg.querySelectorAll('button,[href],[tabindex]:not([tabindex="-1"])')],a=f[0],z=f[f.length-1];if(!f.length)return;if(e.shiftKey&&document.activeElement==a){e.preventDefault();z.focus()}else if(!e.shiftKey&&document.activeElement==z){e.preventDefault();a.focus()}}});
 [[1,3643],[2,5672],[3,7031]].forEach(([n,y])=>{const b=mk('hot',573,y,540,'','button');b.type='button';b.style.height=44/H0*100+'%';b.setAttribute('aria-label','Xem chi tiết luật Vòng '+n);b.onclick=()=>openP(n,b)});
+{const f=mk('hot',300,7950,320,'','a');f.href='https://www.facebook.com/profile.php?id=61582890101917';f.target='_blank';f.rel='noopener noreferrer';f.style.height=56/H0*100+'%';f.setAttribute('aria-label','Mở trang Facebook CMA Maths Club')}
 </script></body></html>
