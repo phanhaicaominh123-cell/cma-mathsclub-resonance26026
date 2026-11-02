@@ -121,27 +121,25 @@ addEventListener('keydown',e=>{if(!pop.classList.contains('open'))return;if(e.ke
 (()=>{
 const rm2=matchMedia('(prefers-reduced-motion:reduce)').matches;
 const css=document.createElement('style');css.textContent=`
-#bub{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:4}
-#bub .bb{position:absolute;bottom:-70px;animation:bup linear forwards;will-change:transform}
+#bub{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:4}
+#bub .bb{position:absolute;animation:bup linear forwards;will-change:transform}
 #bub .bi{display:block;width:100%;height:100%;border-radius:50%;background:radial-gradient(circle at 30% 26%,rgba(255,255,255,.95) 0 7%,rgba(255,255,255,.2) 9% 42%,rgba(255,255,255,.05) 64%,rgba(190,238,255,.38) 100%);border:1px solid rgba(255,255,255,.6);box-shadow:inset 0 0 8px rgba(255,255,255,.4),0 0 6px rgba(255,255,255,.25);animation:bsw 3.2s ease-in-out infinite alternate}
 #bub .bi.pp{animation:bpop .26s ease-out forwards}
 #bub .sm{position:absolute;border-radius:50%;border:1px solid rgba(255,255,255,.7);background:radial-gradient(circle at 30% 28%,rgba(255,255,255,.9) 0 10%,rgba(255,255,255,.12) 50%);animation:blift 1.6s ease-out forwards}
-@keyframes bup{to{transform:translateY(calc(-100vh - 140px))}}
+@keyframes bup{to{transform:translateY(var(--rise,-110vh))}}
 @keyframes bsw{from{transform:translateX(-14px)}to{transform:translateX(14px)}}
 @keyframes bpop{0%{transform:scale(1);opacity:1}60%{transform:scale(1.45);opacity:.55}100%{transform:scale(1.7);opacity:0}}
 @keyframes blift{from{transform:translateY(0) scale(.6);opacity:.95}to{transform:translateY(-110px) scale(1.1);opacity:0}}
 .tg{position:absolute;pointer-events:auto}.tg i{position:absolute;top:0;height:100%;background-repeat:no-repeat;background-size:100cqw auto;opacity:0;pointer-events:none}
 .tg.go i{opacity:1;animation:tjump .95s cubic-bezier(.3,.7,.4,1) both;filter:url(#txm) drop-shadow(0 .5cqw .3cqw rgba(0,40,70,.45))}
 @keyframes tjump{0%{transform:none}28%{transform:translateY(-2.6cqw) scale(1.07)}52%{transform:translateY(.4cqw) scaleY(.9)}72%{transform:translateY(-.8cqw)}100%{transform:none}}
-#snd{position:fixed;right:max(14px,env(safe-area-inset-right));bottom:max(14px,env(safe-area-inset-bottom));z-index:50;width:46px;height:46px;border-radius:50%;border:2px solid rgba(255,255,255,.7);background:rgba(10,59,82,.78);color:#fff;font-size:22px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(0,0,0,.3);transition:transform .15s}
-#snd:hover{transform:scale(1.08)}#snd:focus-visible{outline:3px solid #fff;outline-offset:2px}
 @media(prefers-reduced-motion:reduce){#bub{display:none}.tg.go i{animation:none}}`;
 document.head.appendChild(css);
 const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('width','0');svg.setAttribute('height','0');svg.style.cssText='position:absolute;pointer-events:none';svg.setAttribute('aria-hidden','true');
 svg.innerHTML='<filter id="txm" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  9 0 0 0 -7.1"/></filter>';document.body.appendChild(svg);
 
 /* --- âm thanh (tổng hợp bằng Web Audio, không cần file) --- */
-let AC=null,muted=false;try{muted=localStorage.getItem('rsMute')=='1'}catch(e){}
+let AC=null,muted=false;
 const ac=()=>{if(muted)return null;try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();if(AC.state=='suspended')AC.resume()}catch(e){return null}return AC};
 function tone(f0,f1,d,type,v,t0){const c=ac();if(!c)return;try{const t=c.currentTime+(t0||0),o=c.createOscillator(),g=c.createGain();o.type=type||'sine';o.frequency.setValueAtTime(f0,t);o.frequency.exponentialRampToValueAtTime(f1,t+d);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v||.1,t+.012);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+d+.03)}catch(e){}}
 const sPop=()=>tone(700+Math.random()*500,260,.13,'sine',.11);
@@ -150,9 +148,6 @@ const sPad=n=>{const sc=[0,2,4,7,9],k=n-1,f=262*Math.pow(2,(sc[k%5]+12*Math.floo
 const sOpen=()=>{tone(420,840,.14,'square',.04)},sClose=()=>{tone(640,320,.14,'square',.04)};
 const sWin=()=>[523,659,784,1047,1319].forEach((f,i)=>tone(f,f,.4,'triangle',.11,i*.1));
 const unlock=()=>{ac()};['pointerdown','keydown','touchend','click'].forEach(e=>addEventListener(e,unlock,{passive:true}));
-const btn=document.createElement('button');btn.id='snd';btn.type='button';
-const paint=()=>{btn.textContent=muted?'🔇':'🔊';btn.setAttribute('aria-label',muted?'Bật âm thanh':'Tắt âm thanh');btn.setAttribute('aria-pressed',String(!muted))};paint();
-btn.onclick=()=>{muted=!muted;try{localStorage.setItem('rsMute',muted?'1':'0')}catch(e){}paint();sPop()};document.body.appendChild(btn);
 /* lá sen: mỗi lá một nốt nhạc */
 const _pick=pick;pick=function(n){const p=N;_pick(n);if(N!=p)sPad(N)};
 /* mở / đóng / chuyển khung luật */
@@ -181,23 +176,23 @@ gs.forEach(o=>{o.g.addEventListener('pointerenter',()=>jump(o));o.g.addEventList
 if('IntersectionObserver'in window){const io2=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){const o=gs.find(q=>q.g===e.target);setTimeout(()=>jump(o),350)}}),{threshold:.9});gs.forEach(o=>io2.observe(o.g))}
 
 /* --- bong bóng nổi, chạm / lướt qua để vỡ --- */
-if(!rm2){const layer=document.createElement('div');layer.id='bub';document.body.appendChild(layer);
- const set=new Set(),MAX=innerWidth<600?9:15;
- function spawn(){if(document.hidden||set.size>=MAX)return;const s=14+Math.random()*34,b=document.createElement('div');b.className='bb';
-  b.style.cssText=`left:${Math.random()*(innerWidth-s)}px;width:${s}px;height:${s}px;animation-duration:${9+Math.random()*7}s`;
+if(!rm2){const layer=document.createElement('div');layer.id='bub';stage.appendChild(layer);
+ const set=new Set(),MAX=innerWidth<600?7:11;
+ function spawn(first){if(document.hidden)return;const R0=layer.getBoundingClientRect();let vis=0;set.forEach(q=>{const r=q.getBoundingClientRect();if(r.bottom>0&&r.top<innerHeight)vis++});if(vis>=MAX)return;const s=14+Math.random()*34,b=document.createElement('div'),rise=innerHeight*(.9+Math.random()*.5),y0=(first?Math.random()*innerHeight:innerHeight+40)-R0.top;b.className='bb';
+  b.style.cssText=`--rise:${-rise}px;left:${Math.random()*(layer.clientWidth-s)}px;top:${y0}px;width:${s}px;height:${s}px;animation-duration:${9+Math.random()*7}s`;
   const i=document.createElement('i');i.className='bi';i.style.animationDelay=-Math.random()*3+'s';b.appendChild(i);layer.appendChild(b);set.add(b);
   b.addEventListener('animationend',e=>{if(e.target===b){set.delete(b);b.remove()}})}
  function popB(b){if(b._p)return;b._p=1;b.firstChild.classList.add('pp');sPop();setTimeout(()=>{set.delete(b);b.remove()},270)}
  function hit(x,y){set.forEach(b=>{if(b._p)return;const r=b.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;if(Math.hypot(x-cx,y-cy)<r.width/2+3)popB(b)})}
  addEventListener('pointermove',e=>hit(e.clientX,e.clientY),{passive:true});
- addEventListener('pointerdown',e=>{hit(e.clientX,e.clientY);if(pop_open())return;for(let k=0;k<3;k++){const s=8+Math.random()*10,m=document.createElement('i');m.className='sm';m.style.cssText=`left:${e.clientX-s/2+(Math.random()-.5)*30}px;top:${e.clientY-s/2+(Math.random()-.5)*14}px;width:${s}px;height:${s}px;animation-delay:${k*90}ms`;layer.appendChild(m);setTimeout(()=>m.remove(),1800)}},{passive:true});
+ addEventListener('pointerdown',e=>{hit(e.clientX,e.clientY);if(pop_open())return;for(let k=0;k<3;k++){const s=8+Math.random()*10,m=document.createElement('i');m.className='sm';const LR=layer.getBoundingClientRect();m.style.cssText=`left:${e.clientX-LR.left-s/2+(Math.random()-.5)*30}px;top:${e.clientY-LR.top-s/2+(Math.random()-.5)*14}px;width:${s}px;height:${s}px;animation-delay:${k*90}ms`;layer.appendChild(m);setTimeout(()=>m.remove(),1800)}},{passive:true});
  const pop_open=()=>document.getElementById('pop').classList.contains('open');
- for(let k=0;k<4;k++)setTimeout(spawn,k*500);setInterval(spawn,900)}
+ for(let k=0;k<4;k++)setTimeout(()=>spawn(true),k*400);setInterval(spawn,1200)}
 })();
 /* H. số trong "Bạn trả lời được / xuất phát": font Anton SC, đổ bóng, căn đúng dòng chữ */
 {const lk=document.createElement('link');lk.rel='stylesheet';lk.href='https://fonts.googleapis.com/css2?family=Anton+SC&display=swap';document.head.appendChild(lk);
  const c2=document.createElement('style');c2.textContent='.num{font-family:"Anton SC","Anton","Oswald",sans-serif;font-weight:400;letter-spacing:.02em;text-shadow:-.09cqw .09cqw 0 rgba(6,46,74,.95),-.14cqw .17cqw .08cqw rgba(0,28,50,.55)}';document.head.appendChild(c2);
- const CAP=19.5,Y1n=4827.5,Y2n=4856,X1n=461,X2n=496;
+ const CAP=19.5,Y1n=4825.5,Y2n=4854,X1n=463,X2n=498;
  function fitNum(){try{const cx=document.createElement('canvas').getContext('2d');cx.font='100px "Anton SC",Anton,Oswald,sans-serif';
   const m=cx.measureText('0123456789'),capR=(m.actualBoundingBoxAscent||72)/100,A=(m.fontBoundingBoxAscent||95)/100,Dn=(m.fontBoundingBoxDescent||25)/100,fs=CAP/capR,off=((A-Dn)/2-capR/2)*fs;
   [[n1,X1n,Y1n,'translate(-50%,-50%)'],[n2,X2n,Y2n,'translate(0,-50%)']].forEach(([e,x,y,t])=>{e.style.fontSize=fs/W0*100+'cqw';e.style.left=x/W0*100+'%';e.style.top=(y-off)/H0*100+'%';e.style.transform=t})}catch(e){}}
